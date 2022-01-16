@@ -1,13 +1,9 @@
-use db_theatre;
+-- import database
+use db_theatre1;
 
 set foreign_key_checks=0;
 
-drop table halls;
-drop table movies;
-drop table price_listing;
-drop table shows;
-drop table booked_tickets;
-drop table types;
+create table manager_info (manager_id int primary key, manager_name varchar(40), age int);
 
 create table halls (hall_id int, class varchar(10), no_of_seats int, primary key(hall_id,class));
 
@@ -18,11 +14,15 @@ create table price_listing (price_id int primary key, type varchar(3), day varch
 create table shows (show_id int primary key, movie_id int, hall_id int, type varchar(3), time int, Date date, price_id int, 
 	foreign key(movie_id) references movies(movie_id), foreign key(hall_id) references halls(hall_id), foreign key(price_id) references price_listing(price_id) on update cascade);
 
-create table booked_tickets (ticket_no int, show_id int, seat_no int, primary key(ticket_no,show_id), 
-	foreign key(show_id) references shows(show_id) on delete cascade);
-
 create table types(movie_id int primary key,type1 varchar(3),type2 varchar(3),type3 varchar(3),
 	foreign key(movie_id) references movies(movie_id) on delete cascade);  
+
+create table new_booked_tickets (ticket_no int, show_id int, seat_no int, ma_nhan_vien int, primary key(ticket_no,show_id), 
+	foreign key(show_id) references shows(show_id) on delete cascade, foreign key(ma_nhan_vien) references nhan_vien(ma_nhan_vien));
+
+create table nhan_vien (ma_nhan_vien int primary key, ten_nhan_vien varchar(40), ngay_sinh date, gioi_tinh varchar(10), can_cuoc_cong_dan int, chuc_vu varchar(20), so_dien_thoai int, email varchar(40), dia_chi varchar(50), luong varchar(20));
+
+create table khach_hang (ma_khach_hang int primary key, ten_khach_hang varchar(40), ngay_sinh date, gioi_tinh varchar(10), can_cuoc_cong_dan int,  so_dien_thoai int, email varchar(40), loai_khach_hang varchar(20));
 
 desc halls;
 desc movies;
@@ -66,7 +66,6 @@ insert into price_listing values
 select * from halls;
 select * from price_listing;
 
-drop trigger get_price;
 delimiter //
 
 create trigger get_price
@@ -85,8 +84,6 @@ end; //
 
 delimiter ;
 
-
-drop procedure delete_old;
 delimiter //
 
 create procedure delete_old()
@@ -110,3 +107,5 @@ WHERE datediff(show_end,curdate)<0;
 end; //
 
 delimiter ;
+
+
