@@ -20,16 +20,16 @@ def verifyAndRenderRespective():
 
     try:
 
-        if username == '1' and password == '1':
+        if username == 'manager' and password == 'manager':
 
             res = runQuery('call delete_old()')
             return render_template('manager.html')
-        elif username == '2' and password =='2':
+        elif username == 'cashier' and password =='cashier':
             res = runQuery('call delete_old()')
             return render_template('cashier.html')
         else:
             res = runQuery(
-                "SELECT staff_id,staff_name,address,position FROM staff_info WHERE staff_name = '"+username+"' and address = '"+password+"'")
+                "SELECT ma_nhan_vien,ten_nhan_vien,so_dien_thoai,chuc_vu FROM nhan_vien WHERE ten_nhan_vien = '"+username+"' and so_dien_thoai = '"+password+"'")
             
             staffs = []
             for i in res:
@@ -59,7 +59,7 @@ def moviesOnDate():
         "SELECT DISTINCT movie_id,movie_name,type FROM movies NATURAL JOIN shows WHERE Date = '"+date+"'")
 
     if res == []:
-        return '<h4>No Movies Showing</h4>'
+        return '<h4>Không có suất chiếu</h4>'
     else:
         return render_template('movies.html', movies=res)
 
@@ -144,14 +144,14 @@ def getPriceForClass():
         "SELECT price FROM shows NATURAL JOIN price_listing WHERE show_id = "+showID)
 
     if res == []:
-        return '<h5>Prices Have Not Been Assigned To This Show, Try Again Later</h5>'
+        return '<h5>Chưa có giá vé cho suất chiếu này, thử lại sau</h5>'
 
     price = int(res[0][0])
     if seatClass == 'gold':
         price = price * 1.5
 
-    return '<h5>Ticket Price: ₹ '+str(price)+'</h5>\
-	<button onclick="confirmBooking()">Confirm</button>'
+    return '<h5>Ticket Price: '+str(price)+' VND</h5>\
+	<button onclick="confirmBooking()">Xác Nhận</button>'
 
 
 @app.route('/insertBooking', methods=['POST'])
@@ -173,11 +173,11 @@ def createBooking():
             "SELECT ticket_no FROM new_booked_tickets WHERE ticket_no = "+str(ticketNo))
 
     res = runQuery("INSERT INTO new_booked_tickets VALUES(" +
-                   str(ticketNo)+","+showID+","+staffID+","+str(seatNo)+")")
+                   str(ticketNo)+","+showID+","+str(seatNo)+","+staffID+")")
 
     if res == []:
-        return '<h5>Ticket Successfully Booked</h5>\
-		<h6>Ticket Number: '+str(ticketNo)+'</h6>'
+        return '<h5>Đặt vé thành công</h5>\
+		<h6>Mã vé: '+str(ticketNo)+'</h6>'
 
 
 # Routes for manager
@@ -703,7 +703,7 @@ def getShowsOnDate():
         "SELECT show_id,movie_name,type,time FROM shows NATURAL JOIN movies WHERE Date = '"+date+"'")
 
     if res == []:
-        return '<h4>No Shows Showing</h4>'
+        return '<h4>Không có suất chiếu nào trong khoảng thời gian này</h4>'
     else:
         shows = []
         for i in res:
@@ -720,10 +720,10 @@ def getBookedTickets():
     showID = request.form['showID']
 
     res = runQuery(
-        "SELECT ticket_no,seat_no FROM booked_tickets WHERE show_id = "+showID+" order by seat_no")
+        "SELECT ticket_no,seat_no FROM new_booked_tickets WHERE show_id = "+showID+" order by seat_no")
 
     if res == []:
-        return '<h5>No Bookings</h5>'
+        return '<h5>Chưa có ai đặt vé</h5>'
 
     tickets = []
     for i in res:
